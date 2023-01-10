@@ -8,5 +8,5 @@ workers_dev = true
 
 [vars]
 AIRTABLE_BASE_ID = "appKWFjei6fzcRFFH"
-AIRTABLE_TABLE_NAME = "Cloudflare Form Submissions"
+AIRTABLE_TABLE_NAME = "Cloudflare Form"
 FORM_URL = "https://workers-airtable-form1.pages.dev"
