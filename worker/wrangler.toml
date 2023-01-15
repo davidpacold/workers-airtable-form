@@ -10,4 +10,3 @@ workers_dev = true
 AIRTABLE_BASE_ID = "appKWFjei6fzcRFFH"
 AIRTABLE_TABLE_NAME = "Cloudflare Form"
 FORM_URL = "https://form123.davidpacold.app"
-# TURNSTILE_SECRET = Stored as a value in workers secrets like the airtable api key in the readme
