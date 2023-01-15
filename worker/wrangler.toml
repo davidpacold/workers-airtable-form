@@ -9,4 +9,5 @@ workers_dev = true
 [vars]
 AIRTABLE_BASE_ID = "appKWFjei6fzcRFFH"
 AIRTABLE_TABLE_NAME = "Cloudflare Form"
-FORM_URL = "https://workers-airtable-form1.pages.dev"
+FORM_URL = "https://form123.davidpacold.app"
+TURNSTILE_SECRET = "0x4AAAAAAAA3bZ5cTH3q51nnOZD_J-DgGoM"
