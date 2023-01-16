@@ -2,8 +2,6 @@ addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
 
-const SECRET_KEY = `${TURNSTILE_SECRET}`;
-
 const createAirtableRecord = body => {
   return fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE_NAME)}`, {
     method: 'POST',
@@ -23,6 +21,7 @@ const submitHandler = async request => {
   }
 
   const body = await request.formData();
+  const SECRET_KEY = `${SECRET_KEY}`;
 // Turnstile injects a token in "cf-turnstile-response".
     const token = body.get('cf-turnstile-response');
     const ip = request.headers.get('CF-Connecting-IP');
