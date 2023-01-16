@@ -19,7 +19,7 @@ const submitHandler = async request => {
       status: 405
     })
   }
-  const SECRET_KEY = `${TURNSTILE_SECRET}`; 
+  const SECRET_KEY = `${TURNSTILE_SECRET}`;  
   const body = await request.formData();
 // Turnstile injects a token in "cf-turnstile-response".
     const token = body.get('cf-turnstile-response');
