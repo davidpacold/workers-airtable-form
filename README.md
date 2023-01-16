@@ -12,8 +12,9 @@ This tutorial will show you how to integrate with [Airtable](https://airtable.co
 
 1. Fork this repository, and clone your forked repo down to your local machine.
 2. Create a valid Airtable base + table, and get the relevant API keys and configuration details.
-3. Configure a new Pages project in the Cloudflare dashboard, and point it at your forked repository. To correctly configure your new project, use the _build command_ and _build directory_ from the ["Pages deployment details"](#pages-deployment-details) section below.
-4. In `worker`, configure the `wrangler.toml` file with your Cloudflare `account_id`, and replace `AIRTABLE_BASE_ID` and `AIRTABLE_TABLE_NAME` with the values from the tutorial. The `FORM_URL` value should match your deployed Pages URL, such as `https://workers-airtable-form.pages.dev`.
+3. Enable Cloudflare Turnstile and get the Site Key and Secret Key
+4. Configure a new Pages project in the Cloudflare dashboard, and point it at your forked repository. To correctly configure your new project, use the _build command_ and _build directory_ from the ["Pages deployment details"](#pages-deployment-details) section below.
+5. In `worker`, configure the `wrangler.toml` file with your Cloudflare `account_id`, and replace `AIRTABLE_BASE_ID` and `AIRTABLE_TABLE_NAME` with the values from the tutorial. The `FORM_URL` value should match your deployed Pages URL, such as `https://workers-airtable-form.pages.dev`.
 5. With your `wrangler.toml` configured, you can deploy the function using `wrangler publish`. _Note that the repository also includes a GitHub Actions workflow that can automatically deploy your function when you push new commits--see ["GitHub Actions configuration details"](#github-actions-configuration-details) to learn more._
 6. When your Workers function is successfully deployed, you'll get a unique URL representing your function. For instance, `https://workers-form-handler.signalnerve.workers.dev`. You can take this URL and replace the `FORM_URL` constant in your front-end UI to allow it to successfully submit data to your new function.
 
@@ -47,6 +48,21 @@ Enter the secret text you would like assigned to the variable AIRTABLE_API_KEY o
 🌀  Creating the secret for script name airtable-form-handler
 ✨  Success! Uploaded secret AIRTABLE_API_KEY.
 ```
+
+### Cloudflare Turnstile configuration details
+
+In the `frontend \ src \ form.js` update the Sitekey with your Cloudflare turnstile site key
+
+The Cloudflare Turnsile Secret key should be set using `wrangler secret`, a subcommand of `wrangler` for setting _encrypted environment varibles_. Run `wrangler secret put` as seen below, and paste in your API key:
+
+```sh
+$ wrangler secret put TURNSTILE_SECRET
+Enter the secret text you would like assigned to the variable TURNSTILE_SECRET :
+******
+🌀  Creating the secret for TURNSTILE_SECRET
+✨  Success! Uploaded secret TURNSTILE_SECRET.
+```
+
 
 ### GitHub Actions configuration details
 
