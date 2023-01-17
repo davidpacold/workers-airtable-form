@@ -59,7 +59,7 @@ The Cloudflare Turnsile Secret key should be set using `wrangler secret`, a subc
 $ wrangler secret put TURNSTILE_SECRET
 Enter the secret text you would like assigned to the variable TURNSTILE_SECRET :
 ******
-🌀  Creating the secret for TURNSTILE_SECRET
+🌀  Creating the secret for the Worker "workers-airtable-form" 
 ✨  Success! Uploaded secret TURNSTILE_SECRET.
 ```
 
