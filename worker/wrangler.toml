@@ -7,8 +7,6 @@ account_id = "20f3fe27a320b70fbb90d90ce5965695"
 workers_dev = true
 
 [vars]
-AIRTABLE_API_KEY = "patXSYJT6mfOPWOMC.0c929b97a34c09a0e5e9b318fccb6729b12f84834fb46d21ed307a4df5d1a83a"
 AIRTABLE_BASE_ID = "appKWFjei6fzcRFFH"
 AIRTABLE_TABLE_NAME = "Cloudflare Form"
 FORM_URL = "https://form123.davidpacold.app"
-TURNSTILE_SECRET = "0x4AAAAAAAA3bfLKPsmweu9DNm5QxeEbW8Y"
