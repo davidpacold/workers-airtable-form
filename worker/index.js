@@ -1,6 +1,6 @@
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
-})
+});
 
 const createAirtableRecord = body => {
   return fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE_NAME)}`, {
@@ -11,36 +11,47 @@ const createAirtableRecord = body => {
       'Content-type': `application/json`
     }
   })
-}
+};
 
 const submitHandler = async request => {
   if (request.method !== "POST") {
     return new Response("Method Not Allowed", {
-      status: 405
-    })
-  }
-  const SECRET_KEY = `${TURNSTILE_SECRET}`;  
-  const body = await request.formData();
-// Turnstile injects a token in "cf-turnstile-response".
-    const token = body.get('cf-turnstile-response');
-    const ip = request.headers.get('CF-Connecting-IP');
-
-    // Validate the token by calling the "/siteverify" API.
-    let formData = new FormData();
-    formData.append('secret', SECRET_KEY);
-    formData.append('response', token);
-    formData.append('remoteip', ip);
-
-    const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-        body: formData,
-        method: 'POST',
+      status: 405,
+      headers: {
+        'Access-Control-Allow-Origin': '*', // Adjust this to restrict origins
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      }
     });
+  }
 
-    const outcome = await result.json();
-    if (!outcome.success) {
-        return new Response('The provided Turnstile token was not valid! \n' + JSON.stringify(outcome));
-    }
-    // The Turnstile token was successfuly validated. Proceed with your application logic.
+  const body = await request.formData();
+  
+  // Turnstile validation
+  const SECRET_KEY = `${TURNSTILE_SECRET}`;
+  const token = body.get('cf-turnstile-response');
+  const ip = request.headers.get('CF-Connecting-IP');
+
+  let formData = new FormData();
+  formData.append('secret', SECRET_KEY);
+  formData.append('response', token);
+  formData.append('remoteip', ip);
+
+  const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    body: formData,
+    method: 'POST'
+  });
+
+  const outcome = await result.json();
+  if (!outcome.success) {
+    return new Response('The provided Turnstile token was not valid! \n' + JSON.stringify(outcome), {
+      headers: {
+        'Access-Control-Allow-Origin': '*', // Adjust this to restrict origins
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type'
+      }
+    });
+  }
 
   const {
     first_name,
@@ -49,7 +60,7 @@ const submitHandler = async request => {
     phone,
     subject,
     message
-  } = Object.fromEntries(body)
+  } = Object.fromEntries(body);
 
   const reqBody = {
     fields: {
@@ -60,19 +71,34 @@ const submitHandler = async request => {
       "Subject": subject,
       "Message": message
     }
-  }
+  };
 
-  await createAirtableRecord(reqBody)
-  return Response.redirect(FORM_URL)
-}
+  await createAirtableRecord(reqBody);
+
+  return new Response(null, {
+    status: 302,
+    headers: {
+      'Location': '/success.html',
+      'Access-Control-Allow-Origin': '*', // Adjust this to restrict origins
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    }
+  });
+};
 
 async function handleRequest(request) {
-  const url = new URL(request.url)
+  const url = new URL(request.url);
 
   if (url.pathname === "/submit") {
-    return submitHandler(request)
+    return submitHandler(request);
   }
 
-  // return new Response.redirect(FORM_URL)
-  return new Response.redirect(SUBMIT_URL)
+  return new Response('Not Found', {
+    status: 404,
+    headers: {
+      'Access-Control-Allow-Origin': '*', // Adjust this to restrict origins
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    }
+  });
 }

@@ -5,25 +5,26 @@ export default () => (
     action={SERVERLESS_FN_URL} 
     method="POST" 
     className="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
-    onSubmit={(e) => {
+    onSubmit={async (e) => {
       e.preventDefault();
       const formData = new FormData(e.target);
-      fetch(SERVERLESS_FN_URL, {
-        method: 'POST',
-        body: formData,
-      })
-      .then(response => {
+      try {
+        const response = await fetch(SERVERLESS_FN_URL, {
+          method: 'POST',
+          body: formData,
+          mode: 'cors', // Ensure CORS mode is enabled
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
         if (response.ok) {
           window.location.href = '/success.html';
         } else {
-          // Handle error response if necessary
-          console.error('Form submission failed');
+          console.error('Form submission failed', response.statusText);
         }
-      })
-      .catch(error => {
-        // Handle fetch error if necessary
+      } catch (error) {
         console.error('Form submission error', error);
-      });
+      }
     }}
   >
     <div>
