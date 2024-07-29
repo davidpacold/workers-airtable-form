@@ -10,3 +10,4 @@ workers_dev = true
 AIRTABLE_BASE_ID = "appKWFjei6fzcRFFH"
 AIRTABLE_TABLE_NAME = "Cloudflare Form"
 FORM_URL = "https://form123.davidpacold.app"
+SUBMIT_URL = "https://form123.davidpacold.app/success.html"
