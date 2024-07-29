@@ -119,7 +119,7 @@ addEventListener('fetch', event => {
     return new Response(null, {
       status: 302,
       headers: {
-        'Location': '/success.html',
+        'Location': 'https://form123.davidpacold.app/success.html',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
