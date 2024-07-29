@@ -11,10 +11,10 @@
   "author": "Kristian Freeman <kristian@kristianfreeman.com>",
   "license": "MIT",
   "devDependencies": {
-    "prettier": "^1.18.2"
+    "prettier": "^1.18.2",
+    "wrangler": "^3.67.1"
   },
   "dependencies": {
-    "airtable": "^0.11.1",
-    "wrangler": "^3.67.1"
+    "airtable": "^0.11.1"
   }
 }
