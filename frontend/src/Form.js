@@ -11,7 +11,7 @@ export default () => {
   };
 
   const handleTurnstileError = () => {
-    setErrorMessage('Please contact support if you are seeing this message.');
+    window.location.href = '/failure.html';
   };
 
   return (
@@ -28,13 +28,14 @@ export default () => {
             body: formData,
             mode: 'cors' // Ensure CORS mode is enabled
           });
-          if (response.redirected) {
-            window.location.href = response.url;
+          if (response.ok) {
+            window.location.href = '/success.html';
           } else {
-            console.error('Form submission failed', response.statusText);
+            window.location.href = '/failure.html';
           }
         } catch (error) {
           console.error('Form submission error', error);
+          window.location.href = '/failure.html';
         }
       }}
     >
