@@ -112,7 +112,7 @@ export default () => {
           />
         </div>
       </div>
-      <div className="cf-turnstile" data-sitekey="0x4AAAAAAAA3bX86SlzobPLJ" data-callback="handleTurnstile" data-error-callback="handleTurnstileError"></div>
+      <div className="cf-turnstile" data-sitekey="0x4AAAAAAAA3bX86SlzobPLJ" data-callback="handleTurnstile" data-error-callback="handleTurnstileError" data-retry="never"></div>
       <input type="hidden" id="cf-turnstile-response" name="cf-turnstile-response" />
       {errorMessage && (
         <div className="text-red-500 mt-2">
