@@ -1,17 +1,9 @@
-import React, { useState } from 'react';
-
 const SERVERLESS_FN_URL = "https://workers-airtable-form.davidpacold-app.workers.dev/submit";
 
 export default () => {
-  const [errorMessage, setErrorMessage] = useState('');
-
   const handleTurnstile = (token) => {
     const turnstileInput = document.getElementById('cf-turnstile-response');
     turnstileInput.value = token;
-  };
-
-  const handleTurnstileError = () => {
-    setErrorMessage('Please contact support if you are seeing this message.');
   };
 
   return (
@@ -70,15 +62,47 @@ export default () => {
           />
         </div>
       </div>
-      <div className="sm:col-span-2">
+      <div>
+        <label htmlFor="email" className="block text-sm font-medium text-warm-gray-900">
+          Email
+        </label>
+        <div className="mt-1">
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="eripley@nostromo.com"
+            required
+            className="py-3 px-4 block w-full shadow-sm text-warm-gray-900 focus:ring-teal-500 focus:border-teal-500 border-warm-gray-300 rounded-md"
+          />
+        </div>
+      </div>
+      <div>
         <div className="flex justify-between">
-          <label htmlFor="subject" className="block text-sm font-medium text-warm-gray-900">
-            Subject
+          <label htmlFor="phone" className="block text-sm font-medium text-warm-gray-900">
+            Phone
           </label>
-          <span id="subject-max" className="text-sm text-warm-gray-500">
-            Max. 100 characters
+          <span id="phone-optional" className="text-sm text-warm-gray-500">
+            Optional
           </span>
         </div>
+        <div className="mt-1">
+          <input
+            type="text"
+            name="phone"
+            id="phone"
+            autoComplete="tel"
+            className="py-3 px-4 block w-full shadow-sm text-warm-gray-900 focus:ring-teal-500 focus:border-teal-500 border-warm-gray-300 rounded-md"
+            placeholder="+1 (123) 456-7890"
+            aria-describedby="phone-optional"
+          />
+        </div>
+      </div>
+      <div className="sm:col-span-2">
+        <label htmlFor="subject" className="block text-sm font-medium text-warm-gray-900">
+          Subject
+        </label>
         <div className="mt-1">
           <input
             type="text"
@@ -108,16 +132,12 @@ export default () => {
             aria-describedby="message-max"
             placeholder="Tenetur optio quaerat expedita vero et illo. Tenetur nam explicabo dolor voluptatem eveniet. Commodi est beatae id voluptatum porro laudantium. Quam placeat accusamus vel officiis vel. Et perferendis dicta ut perspiciatis quos iste. Tempore autem molestias voluptates in sapiente enim doloremque."
             required
+            defaultValue={''}
           />
         </div>
       </div>
-      <div className="cf-turnstile" data-sitekey="0x4AAAAAAAA3bX86SlzobPLJ" data-callback="handleTurnstile" data-error-callback="handleTurnstileError"></div>
+      <div className="cf-turnstile" data-sitekey="0x4AAAAAAAA3bX86SlzobPLJ" data-callback="handleTurnstile"></div>
       <input type="hidden" id="cf-turnstile-response" name="cf-turnstile-response" />
-      {errorMessage && (
-        <div className="text-red-500 mt-2">
-          {errorMessage}
-        </div>
-      )}
       <div className="sm:col-span-2 sm:flex sm:justify-end">
         <button
           type="submit"
