@@ -78,13 +78,9 @@ const submitHandler = async request => {
 
     // If Turnstile check passes, proceed with creating Airtable record
     const result = await createAirtableRecord(Object.fromEntries(body));
-    return new Response(JSON.stringify(result), {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json'
-        }
-    });
+
+    // Redirect to success page with form data
+    return Response.redirect(`https://yourdomain.com/success.html?${params.toString()}`, 302);
 };
 
 async function handleRequest(request) {
