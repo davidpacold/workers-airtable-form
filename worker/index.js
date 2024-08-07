@@ -73,14 +73,22 @@ const submitHandler = async request => {
 
     if (!turnstileData.success) {
         // Redirect to failure page with form data
-        return Response.redirect(`https://yourdomain.com/failure.html?${params.toString()}`, 302);
+        return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
     }
 
+    // Remove 'cf-turnstile-response' before creating Airtable record
+    const recordData = {};
+    body.forEach((value, key) => {
+        if (key !== 'cf-turnstile-response') {
+            recordData[key] = value;
+        }
+    });
+
     // If Turnstile check passes, proceed with creating Airtable record
-    const result = await createAirtableRecord(Object.fromEntries(body));
+    const result = await createAirtableRecord(recordData);
 
     // Redirect to success page with form data
-    return Response.redirect(`https://yourdomain.com/success.html?${params.toString()}`, 302);
+    return Response.redirect(`https://form123.davidpacold.app/success.html?${params.toString()}`, 302);
 };
 
 async function handleRequest(request) {
