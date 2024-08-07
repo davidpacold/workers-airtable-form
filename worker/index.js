@@ -84,7 +84,17 @@ const submitHandler = async request => {
         }
     });
 
-    const airtableRecord = { fields: recordData }; // Ensuring the structure matches Airtable's expected format
+    const airtableRecord = { 
+        fields: {
+            "First Name": recordData.first_name,
+            "Last Name": recordData.last_name,
+            "Email": recordData.email,
+            "Phone Number": recordData.phone,
+            "Subject": recordData.subject,
+            "Message": recordData.message
+        }
+    };
+
     console.log('Sending to Airtable:', JSON.stringify(airtableRecord));
 
     // If Turnstile check passes, proceed with creating Airtable record
