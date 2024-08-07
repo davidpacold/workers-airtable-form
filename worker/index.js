@@ -43,24 +43,19 @@ const submitHandler = async request => {
     console.log('Turnstile token:', token);
     console.log('Client IP:', ip);
 
+    const params = new URLSearchParams();
+    body.forEach((value, key) => {
+        params.append(key, value);
+    });
+
     if (!token) {
         console.log('Missing Turnstile token');
-        const params = new URLSearchParams();
-        body.forEach((value, key) => {
-            params.append(key, value);
-        });
         return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
     }
 
     let formData = new FormData();
     formData.append('secret', SECRET_KEY);
     formData.append('response', token);
-
-    // Convert form data to URL-encoded string
-    const params = new URLSearchParams();
-    body.forEach((value, key) => {
-        params.append(key, value);
-    });
 
     // Perform Turnstile check
     const turnstileResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
