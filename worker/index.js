@@ -44,25 +44,13 @@ const submitHandler = async request => {
     console.log('Client IP:', ip);
 
     if (!token) {
-        return new Response('Turnstile token is missing', {
-            status: 400,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
-            }
-        });
+        console.log('Missing Turnstile token');
+        return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
     }
 
     let formData = new FormData();
     formData.append('secret', SECRET_KEY);
     formData.append('response', token);
-
-    // Convert form data to URL-encoded string
-    const params = new URLSearchParams();
-    body.forEach((value, key) => {
-        params.append(key, value);
-    });
 
     // Perform Turnstile check
     const turnstileResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
@@ -74,11 +62,11 @@ const submitHandler = async request => {
     console.log('Turnstile Response:', turnstileData);
 
     if (!turnstileData.success) {
-        // Redirect to failure page with form data
+        console.log('Turnstile validation failed');
         return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
     }
 
-    // Remove 'cf-turnstile-response' before creating Airtable record
+    // Prepare Airtable record
     const recordData = {};
     body.forEach((value, key) => {
         if (key !== 'cf-turnstile-response') {
@@ -99,12 +87,13 @@ const submitHandler = async request => {
 
     console.log('Sending to Airtable:', JSON.stringify(airtableRecord));
 
-    // If Turnstile check passes, proceed with creating Airtable record
-    const result = await createAirtableRecord(airtableRecord);
+    // Create Airtable record
+    const airtableResult = await createAirtableRecord(airtableRecord);
 
-    console.log('Airtable record created:', result);
+    console.log('Airtable record created:', airtableResult);
 
-    // Redirect to success page with form data
+    // Redirect to success page
+    console.log('Redirecting to success page');
     return Response.redirect(`https://form123.davidpacold.app/success.html?${params.toString()}`, 302);
 };
 
