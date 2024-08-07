@@ -3,50 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Submission Failed</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f8f9fa;
-    }
-    .container {
-      text-align: center;
-      padding: 20px;
-      background-color: #ffffff;
-      border: 1px solid #dee2e6;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-      color: #dc3545;
-    }
-    p {
-      color: #6c757d;
-    }
-    a {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 10px 20px;
-      color: #ffffff;
-      background-color: #007bff;
-      text-decoration: none;
-      border-radius: 5px;
-    }
-    a:hover {
-      background-color: #0056b3;
-    }
-  </style>
+  <title>Form Submission Failed</title>
 </head>
 <body>
-  <div class="container">
-    <h1>Submission Failed</h1>
-    <p>Sorry, your submission failed due to captcha validation. Please try again.</p>
-    <a href="/index.html">Retry Submission</a>
-  </div>
+  <h1>Form Submission Failed</h1>
+  <p>There was an error with your submission. Please try again.</p>
+  <div id="formData"></div>
+  <a href="index.html">Go back to the form</a>
+
+  <script>
+    // Function to parse query parameters
+    function getQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      const entries = params.entries();
+      let result = {};
+      for (const [key, value] of entries) {
+        result[key] = value;
+      }
+      return result;
+    }
+
+    // Function to display form data
+    function displayFormData() {
+      const formDataDiv = document.getElementById('formData');
+      const formData = getQueryParams();
+      let html = '<h2>Form Data</h2><ul>';
+      for (const [key, value] of Object.entries(formData)) {
+        html += `<li><strong>${key}</strong>: ${value}</li>`;
+      }
+      html += '</ul>';
+      formDataDiv.innerHTML = html;
+    }
+
+    // Display the form data on page load
+    window.onload = displayFormData;
+  </script>
 </body>
 </html>
