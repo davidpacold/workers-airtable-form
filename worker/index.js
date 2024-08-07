@@ -43,13 +43,15 @@ const submitHandler = async request => {
     console.log('Turnstile token:', token);
     console.log('Client IP:', ip);
 
+    const params = new URLSearchParams();
+    body.forEach((value, key) => {
+        if (key !== 'cf-turnstile-response') {
+            params.append(key, value);
+        }
+    });
+
     if (!token) {
-        const params = new URLSearchParams();
-        body.forEach((value, key) => {
-            if (key !== 'cf-turnstile-response') {
-                params.append(key, value);
-            }
-        });
+        console.log('Missing Turnstile token');
         return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
     }
 
@@ -67,12 +69,7 @@ const submitHandler = async request => {
     console.log('Turnstile validation result:', outcome);
 
     if (!outcome.success) {
-        const params = new URLSearchParams();
-        body.forEach((value, key) => {
-            if (key !== 'cf-turnstile-response') {
-                params.append(key, value);
-            }
-        });
+        console.log('Turnstile validation failed');
         return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
     }
 
@@ -113,13 +110,6 @@ const submitHandler = async request => {
     }
 
     console.log('Airtable record created successfully');
-
-    const params = new URLSearchParams();
-    body.forEach((value, key) => {
-        if (key !== 'cf-turnstile-response') {
-            params.append(key, value);
-        }
-    });
 
     return new Response(null, {
         status: 302,
