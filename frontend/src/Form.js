@@ -23,14 +23,16 @@ const Form = () => {
         body: formData,
         mode: 'cors' // Ensure CORS mode is enabled
       });
-      if (response.ok) {
-        window.location.href = '/success.html';
+
+      if (response.redirected) {
+        window.location.href = response.url;
       } else {
-        window.location.href = `/failure.html?${new URLSearchParams([...formData]).toString()}`;
+        const result = await response.json();
+        console.log('Submission result:', result);
       }
     } catch (error) {
       console.error('Form submission error', error);
-      window.location.href = `/failure.html?${new URLSearchParams([...formData]).toString()}`;
+      window.location.href = '/failure.html';
     }
   };
 
