@@ -45,7 +45,9 @@ const submitHandler = async request => {
 
     const params = new URLSearchParams();
     body.forEach((value, key) => {
-        params.append(key, value);
+        if (key !== 'cf-turnstile-response') {
+            params.append(key, value);
+        }
     });
 
     if (!token) {
