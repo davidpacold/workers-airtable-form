@@ -17,6 +17,10 @@ const Form = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
+    const params = new URLSearchParams();
+    formData.forEach((value, key) => {
+      params.append(key, value);
+    });
     try {
       const response = await fetch(SERVERLESS_FN_URL, {
         method: 'POST',
@@ -32,7 +36,7 @@ const Form = () => {
       }
     } catch (error) {
       console.error('Form submission error', error);
-      window.location.href = '/failure.html';
+      window.location.href = `/failure.html?${params.toString()}`;
     }
   };
 

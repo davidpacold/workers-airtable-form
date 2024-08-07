@@ -1,0 +1,13 @@
+name = "workers-airtable-form"
+main= "index.js"
+type = "javascript"
+compatibility_date = "2023-01-10"
+
+account_id = "20f3fe27a320b70fbb90d90ce5965695"
+workers_dev = true
+
+[vars]
+AIRTABLE_BASE_ID = "appKWFjei6fzcRFFH"
+AIRTABLE_TABLE_NAME = "Cloudflare Form"
+FORM_URL = "https://form123.davidpacold.app"
+SUBMIT_URL = "https://form123.davidpacold.app/success.html"
