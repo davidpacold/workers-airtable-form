@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const SERVERLESS_FN_URL = "https://workers-airtable-form.davidpacold-app.workers.dev/submit";
 
-const Form = () => {
+export default () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleTurnstile = (token) => {
@@ -14,32 +14,30 @@ const Form = () => {
     window.location.href = '/failure.html';
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    try {
-      const response = await fetch(SERVERLESS_FN_URL, {
-        method: 'POST',
-        body: formData,
-        mode: 'cors' // Ensure CORS mode is enabled
-      });
-      if (response.ok) {
-        window.location.href = '/success.html';
-      } else {
-        window.location.href = `/failure.html?${new URLSearchParams([...formData]).toString()}`;
-      }
-    } catch (error) {
-      console.error('Form submission error', error);
-      window.location.href = `/failure.html?${new URLSearchParams([...formData]).toString()}`;
-    }
-  };
-
   return (
     <form 
       action={SERVERLESS_FN_URL} 
       method="POST" 
       className="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
-      onSubmit={handleSubmit}
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        try {
+          const response = await fetch(SERVERLESS_FN_URL, {
+            method: 'POST',
+            body: formData,
+            mode: 'cors' // Ensure CORS mode is enabled
+          });
+          if (response.ok) {
+            window.location.href = '/success.html';
+          } else {
+            window.location.href = '/failure.html';
+          }
+        } catch (error) {
+          console.error('Form submission error', error);
+          window.location.href = '/failure.html';
+        }
+      }}
     >
       <div>
         <label htmlFor="first_name" className="block text-sm font-medium text-warm-gray-900">
@@ -68,6 +66,26 @@ const Form = () => {
             id="last_name"
             autoComplete="family-name"
             placeholder="Ripley"
+            required
+            className="py-3 px-4 block w-full shadow-sm text-warm-gray-900 focus:ring-teal-500 focus:border-teal-500 border-warm-gray-300 rounded-md"
+          />
+        </div>
+      </div>
+      <div className="sm:col-span-2">
+        <div className="flex justify-between">
+          <label htmlFor="subject" className="block text-sm font-medium text-warm-gray-900">
+            Subject
+          </label>
+          <span id="subject-max" className="text-sm text-warm-gray-500">
+            Max. 100 characters
+          </span>
+        </div>
+        <div className="mt-1">
+          <input
+            type="text"
+            name="subject"
+            id="subject"
+            placeholder="Your example subject"
             required
             className="py-3 px-4 block w-full shadow-sm text-warm-gray-900 focus:ring-teal-500 focus:border-teal-500 border-warm-gray-300 rounded-md"
           />
@@ -112,5 +130,3 @@ const Form = () => {
     </form>
   );
 };
-
-export default Form;
