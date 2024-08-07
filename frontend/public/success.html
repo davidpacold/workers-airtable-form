@@ -1,50 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Submitted</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            text-align: center;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #4CAF50;
-        }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #4CAF50;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Submission Successful</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      color: #4CAF50;
+    }
+    p {
+      font-size: 18px;
+    }
+    #formData {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      padding: 5px 0;
+    }
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      color: #fff;
+      background-color: #4CAF50;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    a:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Got your form!</h1>
-        <p>Thank you for submitting the form.</p>
-        <a href="/form123" class="button">Go back to Form123</a>
-    </div>
+  <h1>Form Submission Successful</h1>
+  <p>Your submission has been received successfully. Thank you!</p>
+  <div id="formData"></div>
+  <a href="https://form123.davidpacold.app">Go back to the form</a>
+
+  <script>
+    // Function to parse query parameters
+    function getQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      const entries = params.entries();
+      let result = {};
+      for (const [key, value] of entries) {
+        result[key] = value;
+      }
+      return result;
+    }
+
+    // Function to display form data
+    function displayFormData() {
+      const formDataDiv = document.getElementById('formData');
+      const formData = getQueryParams();
+      let html = '<h2>Form Data</h2><ul>';
+      for (const [key, value] of Object.entries(formData)) {
+        html += `<li><strong>${key}</strong>: ${value}</li>`;
+      }
+      html += '</ul>';
+      formDataDiv.innerHTML = html;
+    }
+
+    // Display the form data on page load
+    window.onload = displayFormData;
+  </script>
 </body>
 </html>
