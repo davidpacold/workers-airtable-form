@@ -3,7 +3,7 @@ addEventListener('fetch', event => {
 });
 
 const createAirtableRecord = async body => {
-    console.log('Creating Airtable record with body:', JSON.stringify(body));
+    console.log('Creating Airtable record with body:', body);
     const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE_NAME)}`, {
         method: 'POST',
         body: JSON.stringify(body),
@@ -44,7 +44,6 @@ const submitHandler = async request => {
     console.log('Client IP:', ip);
 
     if (!token) {
-        console.log('Missing Turnstile token');
         const params = new URLSearchParams();
         body.forEach((value, key) => {
             if (key !== 'cf-turnstile-response') {
@@ -57,18 +56,17 @@ const submitHandler = async request => {
     let formData = new FormData();
     formData.append('secret', SECRET_KEY);
     formData.append('response', token);
+    formData.append('remoteip', ip);
 
-    // Perform Turnstile check
-    const turnstileResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-        method: "POST",
-        body: formData
+    const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        body: formData,
+        method: 'POST'
     });
-    const turnstileData = await turnstileResponse.json();
 
-    console.log('Turnstile Response:', turnstileData);
+    const outcome = await result.json();
+    console.log('Turnstile validation result:', outcome);
 
-    if (!turnstileData.success) {
-        console.log('Turnstile validation failed');
+    if (!outcome.success) {
         const params = new URLSearchParams();
         body.forEach((value, key) => {
             if (key !== 'cf-turnstile-response') {
@@ -78,35 +76,44 @@ const submitHandler = async request => {
         return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
     }
 
-    console.log('Turnstile validation succeeded');
+    const {
+        first_name,
+        last_name,
+        email,
+        phone,
+        subject,
+        message
+    } = Object.fromEntries(body);
 
-    // Prepare Airtable record
-    const recordData = {};
-    body.forEach((value, key) => {
-        if (key !== 'cf-turnstile-response') {
-            recordData[key] = value;
-        }
-    });
-
-    const airtableRecord = { 
+    const reqBody = {
         fields: {
-            "First Name": recordData.first_name,
-            "Last Name": recordData.last_name,
-            "Email": recordData.email,
-            "Phone Number": recordData.phone,
-            "Subject": recordData.subject,
-            "Message": recordData.message
+            "First Name": first_name,
+            "Last Name": last_name,
+            "Email": email,
+            "Phone Number": phone,
+            "Subject": subject,
+            "Message": message
         }
     };
 
-    console.log('Sending to Airtable:', JSON.stringify(airtableRecord));
+    console.log('Request Body to Airtable:', reqBody);
 
-    // If Turnstile check passes, proceed with creating Airtable record
-    const result = await createAirtableRecord(airtableRecord);
+    const airtableResponse = await createAirtableRecord(reqBody);
 
-    console.log('Airtable record created:', result);
+    if (airtableResponse.error) {
+        console.log('Failed to create Airtable record:', airtableResponse.error);
+        return new Response('Failed to create Airtable record', {
+            status: 500,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            }
+        });
+    }
 
-    // Redirect to success page with form data
+    console.log('Airtable record created successfully');
+
     const params = new URLSearchParams();
     body.forEach((value, key) => {
         if (key !== 'cf-turnstile-response') {
@@ -114,10 +121,32 @@ const submitHandler = async request => {
         }
     });
 
-    console.log('Redirecting to success page with params:', params.toString());
-    return Response.redirect(`https://form123.davidpacold.app/success.html?${params.toString()}`, 302);
+    return new Response(null, {
+        status: 302,
+        headers: {
+            'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type'
+        }
+    });
 };
 
 async function handleRequest(request) {
-    return submitHandler(request);
+    const url = new URL(request.url);
+    console.log('Handling request for URL:', url);
+
+    if (url.pathname === "/submit") {
+        return submitHandler(request);
+    }
+
+    console.log('Path not found:', url.pathname);
+    return new Response('Not Found', {
+        status: 404,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type'
+        }
+    });
 }
