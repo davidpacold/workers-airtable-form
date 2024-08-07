@@ -71,6 +71,8 @@ const submitHandler = async request => {
     });
     const turnstileData = await turnstileResponse.json();
 
+    console.log('Turnstile Response:', turnstileData);
+
     if (!turnstileData.success) {
         // Redirect to failure page with form data
         return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
@@ -99,6 +101,8 @@ const submitHandler = async request => {
 
     // If Turnstile check passes, proceed with creating Airtable record
     const result = await createAirtableRecord(airtableRecord);
+
+    console.log('Airtable record created:', result);
 
     // Redirect to success page with form data
     return Response.redirect(`https://form123.davidpacold.app/success.html?${params.toString()}`, 302);
