@@ -45,12 +45,22 @@ const submitHandler = async request => {
 
     if (!token) {
         console.log('Missing Turnstile token');
+        const params = new URLSearchParams();
+        body.forEach((value, key) => {
+            params.append(key, value);
+        });
         return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
     }
 
     let formData = new FormData();
     formData.append('secret', SECRET_KEY);
     formData.append('response', token);
+
+    // Convert form data to URL-encoded string
+    const params = new URLSearchParams();
+    body.forEach((value, key) => {
+        params.append(key, value);
+    });
 
     // Perform Turnstile check
     const turnstileResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
@@ -87,12 +97,12 @@ const submitHandler = async request => {
 
     console.log('Sending to Airtable:', JSON.stringify(airtableRecord));
 
-    // Create Airtable record
-    const airtableResult = await createAirtableRecord(airtableRecord);
+    // If Turnstile check passes, proceed with creating Airtable record
+    const result = await createAirtableRecord(airtableRecord);
 
-    console.log('Airtable record created:', airtableResult);
+    console.log('Airtable record created:', result);
 
-    // Redirect to success page
+    // Redirect to success page with form data
     console.log('Redirecting to success page');
     return Response.redirect(`https://form123.davidpacold.app/success.html?${params.toString()}`, 302);
 };
