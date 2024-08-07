@@ -3,7 +3,7 @@ addEventListener('fetch', event => {
 });
 
 const createAirtableRecord = async body => {
-    console.log('Creating Airtable record with body:', body);
+    console.log('Creating Airtable record with body:', JSON.stringify(body));
     const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE_NAME)}`, {
         method: 'POST',
         body: JSON.stringify(body),
@@ -84,8 +84,11 @@ const submitHandler = async request => {
         }
     });
 
+    const airtableRecord = { fields: recordData }; // Ensuring the structure matches Airtable's expected format
+    console.log('Sending to Airtable:', JSON.stringify(airtableRecord));
+
     // If Turnstile check passes, proceed with creating Airtable record
-    const result = await createAirtableRecord(recordData);
+    const result = await createAirtableRecord(airtableRecord);
 
     // Redirect to success page with form data
     return Response.redirect(`https://form123.davidpacold.app/success.html?${params.toString()}`, 302);
