@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 
 const SERVERLESS_FN_URL = "https://workers-airtable-form.davidpacold-app.workers.dev/submit";
+const SPECIAL_FIRST_NAME = "Ellen"; // Set your special first name here
+const SPECIAL_LAST_NAME = "Ripley"; // Set your special last name here
 
 const Form = () => {
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSpecialName, setIsSpecialName] = useState(false);
 
   const handleTurnstile = (token) => {
     const turnstileInput = document.getElementById('cf-turnstile-response');
@@ -14,6 +17,18 @@ const Form = () => {
     window.location.href = '/failure.html';
   };
 
+  const handleNameChange = (e) => {
+    const firstName = document.getElementById('first_name').value;
+    const lastName = document.getElementById('last_name').value;
+    
+    // Check if the entered name matches the special name
+    if (firstName === SPECIAL_FIRST_NAME && lastName === SPECIAL_LAST_NAME) {
+      setIsSpecialName(true);  // Disable Turnstile if special name is entered
+    } else {
+      setIsSpecialName(false); // Enable Turnstile for all other names
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -21,11 +36,21 @@ const Form = () => {
     formData.forEach((value, key) => {
       params.append(key, value);
     });
+
     try {
+      if (!isSpecialName) {
+        // Only validate Turnstile if it's not a special name
+        const token = formData.get('cf-turnstile-response');
+        if (!token) {
+          setErrorMessage("Please complete the CAPTCHA.");
+          return;
+        }
+      }
+
       const response = await fetch(SERVERLESS_FN_URL, {
         method: 'POST',
         body: formData,
-        mode: 'cors' // Ensure CORS mode is enabled
+        mode: 'cors'
       });
 
       if (response.redirected) {
@@ -46,6 +71,7 @@ const Form = () => {
       method="POST" 
       className="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
       onSubmit={handleSubmit}
+      onChange={handleNameChange} // Trigger name check on form input change
     >
       <div>
         <label htmlFor="first_name" className="block text-sm font-medium text-warm-gray-900">
@@ -100,8 +126,18 @@ const Form = () => {
           />
         </div>
       </div>
-      <div className="cf-turnstile" data-sitekey="0x4AAAAAAAA3bX86SlzobPLJ" data-callback="handleTurnstile" data-error-callback="handleTurnstileError" data-retry="never"></div>
+      
+      {/* Only show Turnstile widget if it's not the special name */}
+      {!isSpecialName && (
+        <div className="cf-turnstile" 
+          data-sitekey="0x4AAAAAAAA3bX86SlzobPLJ" 
+          data-callback="handleTurnstile" 
+          data-error-callback="handleTurnstileError" 
+          data-retry="never"
+        ></div>
+      )}
       <input type="hidden" id="cf-turnstile-response" name="cf-turnstile-response" />
+
       {errorMessage && (
         <div className="text-red-500 mt-2">
           {errorMessage}
