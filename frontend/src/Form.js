@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const SERVERLESS_FN_URL = "https://workers-airtable-form.davidpacold-app.workers.dev/submit";
-const SPECIAL_FIRST_NAME = "Ellen"; // Set your special first name here
+const SPECIAL_FIRST_NAME = "mr"; // Set your special first name here
 const SPECIAL_LAST_NAME = "Ripley"; // Set your special last name here
 
 const Form = () => {
