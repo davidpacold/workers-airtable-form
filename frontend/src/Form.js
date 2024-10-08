@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const SERVERLESS_FN_URL = "https://workers-airtable-form.davidpacold-app.workers.dev/submit";
-const SPECIAL_FIRST_NAME = "Mr."; // Set your special first name here
+const SPECIAL_FIRST_NAME = "Ellen"; // Set your special first name here
 const SPECIAL_LAST_NAME = "Ripley"; // Set your special last name here
 
 const Form = () => {
@@ -17,15 +17,15 @@ const Form = () => {
     window.location.href = '/failure.html';
   };
 
-  const handleNameChange = (e) => {
+  const handleNameChange = () => {
     const firstName = document.getElementById('first_name').value;
     const lastName = document.getElementById('last_name').value;
-    
-    // Check if the entered name matches the special name
+
+    // Check if both first and last name match the special name
     if (firstName === SPECIAL_FIRST_NAME && lastName === SPECIAL_LAST_NAME) {
       setIsSpecialName(true);  // Disable Turnstile if special name is entered
     } else {
-      setIsSpecialName(false); // Enable Turnstile for all other names
+      setIsSpecialName(false); // Re-enable Turnstile for all other names
     }
   };
 
