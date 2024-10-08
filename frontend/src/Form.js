@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 const SERVERLESS_FN_URL = "https://workers-airtable-form.davidpacold-app.workers.dev/submit";
-const SPECIAL_FIRST_NAME = "mr"; // Set your special first name here
+const SPECIAL_FIRST_NAME = "Mr."; // Set your special first name here
 const SPECIAL_LAST_NAME = "Ripley"; // Set your special last name here
 
 const Form = () => {
@@ -71,7 +71,6 @@ const Form = () => {
       method="POST" 
       className="mt-6 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
       onSubmit={handleSubmit}
-      onChange={handleNameChange} // Trigger name check on form input change
     >
       <div>
         <label htmlFor="first_name" className="block text-sm font-medium text-warm-gray-900">
@@ -86,6 +85,7 @@ const Form = () => {
             placeholder="Ellen"
             required
             className="py-3 px-4 block w-full shadow-sm text-warm-gray-900 focus:ring-teal-500 focus:border-teal-500 border-warm-gray-300 rounded-md"
+            onChange={handleNameChange} // Attach onChange handler
           />
         </div>
       </div>
@@ -102,6 +102,7 @@ const Form = () => {
             placeholder="Ripley"
             required
             className="py-3 px-4 block w-full shadow-sm text-warm-gray-900 focus:ring-teal-500 focus:border-teal-500 border-warm-gray-300 rounded-md"
+            onChange={handleNameChange} // Attach onChange handler
           />
         </div>
       </div>
