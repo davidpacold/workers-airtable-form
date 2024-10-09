@@ -35,7 +35,15 @@ const submitHandler = async request => {
     const body = await request.formData();
     console.log('Form data received:', Array.from(body.entries()));
 
-    // Special name check (you can make these values environment variables if needed)
+    // Initialize URLSearchParams for form values
+    const params = new URLSearchParams();
+    body.forEach((value, key) => {
+        if (key !== 'cf-turnstile-response') {  // Do not append Turnstile response to params
+            params.append(key, value);
+        }
+    });
+
+    // Special name check
     const SPECIAL_FIRST_NAME = "Ellen";
     const SPECIAL_LAST_NAME = "Ripley";
 
@@ -81,9 +89,6 @@ const submitHandler = async request => {
     const {
         first_name,
         last_name,
-        email,
-        phone,
-        subject,
         message
     } = Object.fromEntries(body);
 
@@ -91,9 +96,6 @@ const submitHandler = async request => {
         fields: {
             "First Name": first_name,
             "Last Name": last_name,
-            "Email": email,
-            "Phone Number": phone,
-            "Subject": subject,
             "Message": message
         }
     };
