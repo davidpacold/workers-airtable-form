@@ -1,7 +1,10 @@
 name = "workers-airtable-form"
 main= "index.js"
 type = "javascript"
-compatibility_date = "2023-01-10"
+compatibility_date = "2024-10-08"
+
+[observability]
+enabled = true
 
 account_id = "20f3fe27a320b70fbb90d90ce5965695"
 workers_dev = true
