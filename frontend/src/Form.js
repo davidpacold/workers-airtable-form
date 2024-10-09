@@ -22,7 +22,7 @@ const Form = () => {
   // Function to dynamically load/reload the Turnstile widget
   const loadTurnstile = () => {
     // Remove the existing widget, if any
-    const existingTurnstile = document.querySelector('.cf-turnstile');
+    const existingTurnstile = document.querySelector('#turnstile-widget');
     if (existingTurnstile) {
       existingTurnstile.remove();
     }
@@ -30,6 +30,7 @@ const Form = () => {
     // Create and append the new Turnstile widget, if not special name
     if (!isSpecialName) {
       const turnstileDiv = document.createElement('div');
+      turnstileDiv.id = 'turnstile-widget'; // Use unique ID
       turnstileDiv.className = 'cf-turnstile';
       turnstileDiv.setAttribute('data-sitekey', '0x4AAAAAAAA3bX86SlzobPLJ');
       turnstileDiv.setAttribute('data-callback', 'handleTurnstile');
@@ -39,9 +40,9 @@ const Form = () => {
       // Append the Turnstile widget back into the form
       document.getElementById('turnstile-container').appendChild(turnstileDiv);
 
-      // Re-render the Turnstile widget using Turnstile API
+      // Check if Turnstile is loaded in the window
       if (window.turnstile) {
-        window.turnstile.render('.cf-turnstile');
+        window.turnstile.render('#turnstile-widget'); // Render the widget by unique ID
       }
     }
   };
