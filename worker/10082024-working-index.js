@@ -35,49 +35,44 @@ const submitHandler = async request => {
     const body = await request.formData();
     console.log('Form data received:', Array.from(body.entries()));
 
-    // Special name check (you can make these values environment variables if needed)
-    const SPECIAL_FIRST_NAME = "Ellen";
-    const SPECIAL_LAST_NAME = "Ripley";
-
-    const firstName = body.get('first_name');
-    const lastName = body.get('last_name');
-    const token = body.get('cf-turnstile-response'); // This will be null/empty if skipped
+    // Turnstile validation
+    const SECRET_KEY = `${TURNSTILE_SECRET}`;
+    const token = body.get('cf-turnstile-response');
+    const ip = request.headers.get('CF-Connecting-IP');
 
     console.log('Turnstile token:', token);
+    console.log('Client IP:', ip);
 
-    // Skip Turnstile validation if the special name is provided
-    if (firstName === SPECIAL_FIRST_NAME && lastName === SPECIAL_LAST_NAME) {
-        console.log('Special name detected, skipping Turnstile validation');
-    } else {
-        // Turnstile validation is required for non-special names
-        if (!token) {
-            console.log('Missing Turnstile token');
-            return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
+    const params = new URLSearchParams();
+    body.forEach((value, key) => {
+        if (key !== 'cf-turnstile-response') {
+            params.append(key, value);
         }
+    });
 
-        const SECRET_KEY = `${TURNSTILE_SECRET}`;
-        const ip = request.headers.get('CF-Connecting-IP');
-
-        let formData = new FormData();
-        formData.append('secret', SECRET_KEY);
-        formData.append('response', token);
-        formData.append('remoteip', ip);
-
-        const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-            body: formData,
-            method: 'POST'
-        });
-
-        const outcome = await result.json();
-        console.log('Turnstile validation result:', outcome);
-
-        if (!outcome.success) {
-            console.log('Turnstile validation failed');
-            return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
-        }
+    if (!token) {
+        console.log('Missing Turnstile token');
+        return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
     }
 
-    // Proceed with Airtable record creation
+    let formData = new FormData();
+    formData.append('secret', SECRET_KEY);
+    formData.append('response', token);
+    formData.append('remoteip', ip);
+
+    const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        body: formData,
+        method: 'POST'
+    });
+
+    const outcome = await result.json();
+    console.log('Turnstile validation result:', outcome);
+
+    if (!outcome.success) {
+        console.log('Turnstile validation failed');
+        return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
+    }
+
     const {
         first_name,
         last_name,
