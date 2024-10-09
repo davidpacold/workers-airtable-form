@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const SERVERLESS_FN_URL = "https://workers-airtable-form.davidpacold-app.workers.dev/submit";
 const SPECIAL_FIRST_NAME = "Ellen"; // Set your special first name here
@@ -8,15 +8,50 @@ const Form = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSpecialName, setIsSpecialName] = useState(false);
 
+  // Function to handle the Turnstile success callback
   const handleTurnstile = (token) => {
     const turnstileInput = document.getElementById('cf-turnstile-response');
     turnstileInput.value = token;
   };
 
+  // Function to handle Turnstile errors
   const handleTurnstileError = () => {
     window.location.href = '/failure.html';
   };
 
+  // Function to dynamically load/reload the Turnstile widget
+  const loadTurnstile = () => {
+    // Remove the existing widget, if any
+    const existingTurnstile = document.querySelector('.cf-turnstile');
+    if (existingTurnstile) {
+      existingTurnstile.remove();
+    }
+
+    // Create and append the new Turnstile widget, if not special name
+    if (!isSpecialName) {
+      const turnstileDiv = document.createElement('div');
+      turnstileDiv.className = 'cf-turnstile';
+      turnstileDiv.setAttribute('data-sitekey', '0x4AAAAAAAA3bX86SlzobPLJ');
+      turnstileDiv.setAttribute('data-callback', 'handleTurnstile');
+      turnstileDiv.setAttribute('data-error-callback', 'handleTurnstileError');
+      turnstileDiv.setAttribute('data-retry', 'never');
+
+      // Append the Turnstile widget back into the form
+      document.getElementById('turnstile-container').appendChild(turnstileDiv);
+
+      // Re-render the Turnstile widget using Turnstile API
+      if (window.turnstile) {
+        window.turnstile.render('.cf-turnstile');
+      }
+    }
+  };
+
+  // Effect to reload the Turnstile widget whenever `isSpecialName` changes
+  useEffect(() => {
+    loadTurnstile();
+  }, [isSpecialName]);
+
+  // Function to handle name changes and check for the special name
   const handleNameChange = () => {
     const firstName = document.getElementById('first_name').value;
     const lastName = document.getElementById('last_name').value;
@@ -29,6 +64,7 @@ const Form = () => {
     }
   };
 
+  // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -128,15 +164,8 @@ const Form = () => {
         </div>
       </div>
       
-      {/* Only show Turnstile widget if it's not the special name */}
-      {!isSpecialName && (
-        <div className="cf-turnstile" 
-          data-sitekey="0x4AAAAAAAA3bX86SlzobPLJ" 
-          data-callback="handleTurnstile" 
-          data-error-callback="handleTurnstileError" 
-          data-retry="never"
-        ></div>
-      )}
+      {/* Container for dynamically loading the Turnstile widget */}
+      <div id="turnstile-container"></div>
       <input type="hidden" id="cf-turnstile-response" name="cf-turnstile-response" />
 
       {errorMessage && (
