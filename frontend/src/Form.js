@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react';
 
 const SERVERLESS_FN_URL = "https://workers-airtable-form.davidpacold-app.workers.dev/submit";
-const SPECIAL_FIRST_NAME = "Ellen"; // Set your special first name here
-const SPECIAL_LAST_NAME = "Ripley"; // Set your special last name here
+const SPECIAL_FIRST_NAME = "Ellen";
+const SPECIAL_LAST_NAME = "Ripley";
+
+// Function to dynamically load the Turnstile script
+const loadTurnstileScript = () => {
+  const existingScript = document.getElementById('turnstile-script');
+  if (!existingScript) {
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback';
+    script.id = 'turnstile-script';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+  }
+};
 
 const Form = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSpecialName, setIsSpecialName] = useState(false);
 
-  // Function to handle the Turnstile success callback
+  // Function to handle Turnstile success callback
   const handleTurnstile = (token) => {
     const turnstileInput = document.getElementById('cf-turnstile-response');
     turnstileInput.value = token;
@@ -21,35 +34,32 @@ const Form = () => {
 
   // Function to dynamically load/reload the Turnstile widget
   const loadTurnstile = () => {
-    // Remove the existing widget, if any
     const existingTurnstile = document.querySelector('#turnstile-widget');
     if (existingTurnstile) {
       existingTurnstile.remove();
     }
 
-    // Create and append the new Turnstile widget, if not special name
     if (!isSpecialName) {
       const turnstileDiv = document.createElement('div');
-      turnstileDiv.id = 'turnstile-widget'; // Use unique ID
+      turnstileDiv.id = 'turnstile-widget';
       turnstileDiv.className = 'cf-turnstile';
       turnstileDiv.setAttribute('data-sitekey', '0x4AAAAAAAA3bX86SlzobPLJ');
       turnstileDiv.setAttribute('data-callback', 'handleTurnstile');
       turnstileDiv.setAttribute('data-error-callback', 'handleTurnstileError');
       turnstileDiv.setAttribute('data-retry', 'never');
 
-      // Append the Turnstile widget back into the form
       document.getElementById('turnstile-container').appendChild(turnstileDiv);
 
-      // Check if Turnstile is loaded in the window
       if (window.turnstile) {
-        window.turnstile.render('#turnstile-widget'); // Render the widget by unique ID
+        window.turnstile.render('#turnstile-widget');
       }
     }
   };
 
-  // Effect to reload the Turnstile widget whenever `isSpecialName` changes
+  // Effect to load the Turnstile script and widget on mount
   useEffect(() => {
-    loadTurnstile();
+    loadTurnstileScript();  // Load the Turnstile API script
+    loadTurnstile();        // Load the widget after the script is ready
   }, [isSpecialName]);
 
   // Function to handle name changes and check for the special name
@@ -57,11 +67,10 @@ const Form = () => {
     const firstName = document.getElementById('first_name').value;
     const lastName = document.getElementById('last_name').value;
 
-    // Check if both first and last name match the special name
     if (firstName === SPECIAL_FIRST_NAME && lastName === SPECIAL_LAST_NAME) {
-      setIsSpecialName(true);  // Disable Turnstile if special name is entered
+      setIsSpecialName(true);
     } else {
-      setIsSpecialName(false); // Re-enable Turnstile for all other names
+      setIsSpecialName(false);
     }
   };
 
@@ -76,7 +85,6 @@ const Form = () => {
 
     try {
       if (!isSpecialName) {
-        // Only validate Turnstile if it's not a special name
         const token = formData.get('cf-turnstile-response');
         if (!token) {
           setErrorMessage("Please complete the CAPTCHA.");
@@ -122,7 +130,7 @@ const Form = () => {
             placeholder="Ellen"
             required
             className="py-3 px-4 block w-full shadow-sm text-warm-gray-900 focus:ring-teal-500 focus:border-teal-500 border-warm-gray-300 rounded-md"
-            onChange={handleNameChange} // Attach onChange handler
+            onChange={handleNameChange}
           />
         </div>
       </div>
@@ -139,7 +147,7 @@ const Form = () => {
             placeholder="Ripley"
             required
             className="py-3 px-4 block w-full shadow-sm text-warm-gray-900 focus:ring-teal-500 focus:border-teal-500 border-warm-gray-300 rounded-md"
-            onChange={handleNameChange} // Attach onChange handler
+            onChange={handleNameChange}
           />
         </div>
       </div>
