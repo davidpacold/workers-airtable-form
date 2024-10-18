@@ -125,12 +125,22 @@ const submitHandler = async request => {
     return new Response(null, {
         status: 302,
         headers: {
-            'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
+            'Location': `https://form123.davidpacold.app/success.html?${params.toString()}&turnstile_status=${turnstileStatus}`,
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type'
         }
     });
+    
+    // return new Response(null, {
+    //     status: 302,
+    //     headers: {
+    //         'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
+    //         'Access-Control-Allow-Origin': '*',
+    //         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    //         'Access-Control-Allow-Headers': 'Content-Type'
+    //     }
+    // });
 };
 
 async function handleRequest(request) {
