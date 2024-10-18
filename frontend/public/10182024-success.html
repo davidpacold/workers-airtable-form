@@ -49,9 +49,8 @@
   <h1>Form Submission Successful</h1>
   <p>Your submission has been received successfully. Thank you!</p>
   <div id="formData"></div>
+  <div id="turnstileStatus"></div> <!-- New Div for Turnstile Status -->
   <a href="https://form123.davidpacold.app">Go back to the form</a>
-
-  <a href="https://form123.davidpacold.app" class="button green">Go back to the form</a>
 
   <script>
     function getQueryParams() {
@@ -63,16 +62,25 @@
       }
       return result;
     }
-
+  
     function displayFormData() {
       const formDataDiv = document.getElementById('formData');
       const formData = getQueryParams();
       let html = '<h2>Form Data</h2><ul>';
       for (const [key, value] of Object.entries(formData)) {
-        html += `<li><strong>${key}</strong>: ${value}</li>`;
+        if (key !== 'turnstile_status') {  // Exclude turnstile status here
+          html += `<li><strong>${key}</strong>: ${value}</li>`;
+        }
       }
       html += '</ul>';
       formDataDiv.innerHTML = html;
+  
+      // Display Turnstile Status
+      const turnstileStatusDiv = document.getElementById('turnstileStatus');
+      const turnstileStatus = formData['turnstile_status'];
+      if (turnstileStatus) {
+        turnstileStatusDiv.innerHTML = `<p><strong>Turnstile Status</strong>: ${turnstileStatus}</p>`;
+      }
     }
   
     window.onload = displayFormData;
