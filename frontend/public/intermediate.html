@@ -12,7 +12,7 @@
       background-color: #f4f4f4;
     }
     h1 {
-      color: #4CAF50;
+      color: #FF6347;
     }
     p {
       font-size: 18px;
@@ -31,17 +31,28 @@
     li {
       padding: 5px 0;
     }
-    a {
+    .button {
       display: inline-block;
       margin-top: 20px;
       padding: 10px 20px;
       color: #fff;
-      background-color: #4CAF50;
       text-decoration: none;
       border-radius: 5px;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
     }
-    a:hover {
+    .button:hover {
       background-color: #45a049;
+    }
+    .green {
+      background-color: #4CAF50;
+    }
+    .red {
+      background-color: #FF6347;
+    }
+    .red:hover {
+      background-color: #e55347;
     }
   </style>
 </head>
@@ -49,9 +60,11 @@
   <h1>Issue with Turnstile Check</h1>
   <p>Your form has not been submitted yet due to an issue with the Turnstile check.</p>
   <p>If you'd like to submit the form anyway, please click "Submit Anyway" below.</p>
+  
   <div id="formData"></div>
-  <button id="submitAnyway">Submit Anyway</button>
-  <a href="https://form123.davidpacold.app">Go back to the form</a>
+  
+  <button id="submitAnyway" class="button red">Submit Anyway</button>
+  <a href="https://form123.davidpacold.app" class="button green">Go back to the form</a>
 
   <script>
     function getQueryParams() {
@@ -75,10 +88,27 @@
       formDataDiv.innerHTML = html;
     }
 
-    // Redirect to submit the form anyway
+    // Submit the form data via a POST request
     document.getElementById('submitAnyway').addEventListener('click', function() {
-      const params = window.location.search;
-      window.location.href = `https://workers-airtable-form.davidpacold-app.workers.dev/submitAnyway${params}`;
+      const params = getQueryParams();
+      const formData = new FormData();
+      for (const [key, value] of Object.entries(params)) {
+        formData.append(key, value);
+      }
+
+      fetch('https://workers-airtable-form.davidpacold-app.workers.dev/submitAnyway', {
+        method: 'POST',
+        body: formData,
+        mode: 'cors'
+      }).then(response => {
+        if (response.redirected) {
+          window.location.href = response.url;
+        } else {
+          console.log('Form submission result', response);
+        }
+      }).catch(error => {
+        console.error('Form submission error', error);
+      });
     });
 
     window.onload = displayFormData;
