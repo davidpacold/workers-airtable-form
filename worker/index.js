@@ -18,7 +18,8 @@ const createAirtableRecord = async body => {
     return result;
 };
 
-const submitHandler = async request => {
+// Main handler function for form submission
+const submitHandler = async (request, turnstileStatus = 'failed') => {
     if (request.method !== "POST") {
         console.log('Method not allowed:', request.method);
         return new Response("Method Not Allowed", {
@@ -53,48 +54,54 @@ const submitHandler = async request => {
 
     console.log('Turnstile token:', token);
 
-    let turnstileStatus = 'failed'; // Default to 'failed'
-    
     // Skip Turnstile validation if the special name is provided
     if (firstName === SPECIAL_FIRST_NAME && lastName === SPECIAL_LAST_NAME) {
         console.log('Special name detected, skipping Turnstile validation');
         turnstileStatus = 'skipped';  // Mark as skipped
     } else {
-        // Turnstile validation is required for non-special names
+        // Perform Turnstile validation if not skipped
         if (!token) {
-            console.log('Missing Turnstile token');
-        } else {
-            const SECRET_KEY = `${TURNSTILE_SECRET}`;
-            const ip = request.headers.get('CF-Connecting-IP');
-
-            let formData = new FormData();
-            formData.append('secret', SECRET_KEY);
-            formData.append('response', token);
-            formData.append('remoteip', ip);
-
-            const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-                body: formData,
-                method: 'POST'
+            console.log('Missing Turnstile token, redirecting to intermediate page.');
+            return new Response(null, {
+                status: 302,
+                headers: {
+                    'Location': `https://form123.davidpacold.app/intermediate.html?${params.toString()}&turnstile_status=failed`,
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                }
             });
+        }
 
-            const outcome = await result.json();
-            console.log('Turnstile validation result:', outcome);
+        const SECRET_KEY = `${TURNSTILE_SECRET}`;
+        const ip = request.headers.get('CF-Connecting-IP');
 
-            if (outcome.success) {
-                turnstileStatus = 'passed';
-            } else {
-                console.log('Turnstile validation failed, redirecting to intermediate page.');
-                return new Response(null, {
-                    status: 302,
-                    headers: {
-                        'Location': `https://form123.davidpacold.app/intermediate.html?${params.toString()}&turnstile_status=failed`,
-                        'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                        'Access-Control-Allow-Headers': 'Content-Type'
-                    }
-                });
-            }
-            
+        let formData = new FormData();
+        formData.append('secret', SECRET_KEY);
+        formData.append('response', token);
+        formData.append('remoteip', ip);
+
+        const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            body: formData,
+            method: 'POST'
+        });
+
+        const outcome = await result.json();
+        console.log('Turnstile validation result:', outcome);
+
+        if (outcome.success) {
+            turnstileStatus = 'passed';  // Mark as passed if successful
+        } else {
+            console.log('Turnstile validation failed, redirecting to intermediate page.');
+            return new Response(null, {
+                status: 302,
+                headers: {
+                    'Location': `https://form123.davidpacold.app/intermediate.html?${params.toString()}&turnstile_status=failed`,
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                }
+            });
         }
     }
 
@@ -135,24 +142,20 @@ const submitHandler = async request => {
     return new Response(null, {
         status: 302,
         headers: {
-            'Location': `https://form123.davidpacold.app/success.html?${params.toString()}&turnstile_status=${turnstileStatus}`,
+            'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type'
         }
     });
-    
-    // return new Response(null, {
-    //     status: 302,
-    //     headers: {
-    //         'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
-    //         'Access-Control-Allow-Origin': '*',
-    //         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    //         'Access-Control-Allow-Headers': 'Content-Type'
-    //     }
-    // });
 };
 
+// Function to handle submission from the intermediate page
+const handleIntermediateSubmission = async (request) => {
+    return submitHandler(request, 'failed');
+};
+
+// Main request handler
 async function handleRequest(request) {
     const url = new URL(request.url);
     console.log('Handling request for URL:', url);
@@ -162,11 +165,8 @@ async function handleRequest(request) {
     }
 
     if (url.pathname === "/submitAnyway") {
-        // Proceed with submission as usual, marking the Turnstile status as 'failed'
-        const turnstileStatus = 'failed';
-        return submitFormWithStatus(request, turnstileStatus);
+        return handleIntermediateSubmission(request);
     }
-    
 
     console.log('Path not found:', url.pathname);
     return new Response('Not Found', {
