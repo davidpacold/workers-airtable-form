@@ -73,8 +73,8 @@ const Form = () => {
       setIsSpecialName(false);
     }
   };
-
-  // Function to handle form submission
+  
+  // Function to handle form submission added 10-18-2024
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -82,22 +82,22 @@ const Form = () => {
     formData.forEach((value, key) => {
       params.append(key, value);
     });
-
+  
     try {
-      if (!isSpecialName) {
-        const token = formData.get('cf-turnstile-response');
-        if (!token) {
-          setErrorMessage("Please complete the CAPTCHA.");
-          return;
-        }
+      const token = formData.get('cf-turnstile-response');
+  
+      if (!isSpecialName && !token) {
+        // If CAPTCHA is not passed, let the user submit but track it as failed.
+        setErrorMessage("CAPTCHA not completed, but allowing submission.");
       }
-
+  
+      // Proceed with form submission regardless of CAPTCHA status
       const response = await fetch(SERVERLESS_FN_URL, {
         method: 'POST',
         body: formData,
         mode: 'cors'
       });
-
+  
       if (response.redirected) {
         window.location.href = response.url;
       } else {
@@ -109,6 +109,42 @@ const Form = () => {
       window.location.href = `/failure.html?${params.toString()}`;
     }
   };
+
+  // // Function to handle form submission commented out 10-18-2024
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const formData = new FormData(e.target);
+  //   const params = new URLSearchParams();
+  //   formData.forEach((value, key) => {
+  //     params.append(key, value);
+  //   });
+
+  //   try {
+  //     if (!isSpecialName) {
+  //       const token = formData.get('cf-turnstile-response');
+  //       if (!token) {
+  //         setErrorMessage("Please complete the CAPTCHA.");
+  //         return;
+  //       }
+  //     }
+
+  //     const response = await fetch(SERVERLESS_FN_URL, {
+  //       method: 'POST',
+  //       body: formData,
+  //       mode: 'cors'
+  //     });
+
+  //     if (response.redirected) {
+  //       window.location.href = response.url;
+  //     } else {
+  //       const result = await response.json();
+  //       console.log('Submission result:', result);
+  //     }
+  //   } catch (error) {
+  //     console.error('Form submission error', error);
+  //     window.location.href = `/failure.html?${params.toString()}`;
+  //   }
+  // };
 
   return (
     <form 
