@@ -55,21 +55,25 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
     console.log('Turnstile token:', token);
 
 
-// Skip Turnstile validation if the special name is provided
-if (firstName === SPECIAL_FIRST_NAME && lastName === SPECIAL_LAST_NAME) {
-    console.log('Special name detected, skipping Turnstile validation');
-    turnstileStatus = 'skipped';  // Mark as skipped
-    // Proceed directly to the success page with status 'skipped'
-    return new Response(null, {
+     // Skip Turnstile validation if the special name is provided
+    if (firstName === SPECIAL_FIRST_NAME && lastName === SPECIAL_LAST_NAME) {
+        console.log('Special name detected, skipping Turnstile validation');
+        turnstileStatus = 'skipped';  // Mark as skipped
+
+        // Ensure the turnstile_status is added to the URL parameters
+        params.append('turnstile_status', 'skipped');
+
+        // Redirect to success page with all form data and turnstile_status=skipped
+        return new Response(null, {
         status: 302,
         headers: {
-            'Location': `https://form123.davidpacold.app/success.html?${params.toString()}&turnstile_status=skipped`,
+            'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type'
         }
-    });
-} el
+        });
+    } else
         // Perform Turnstile validation if not skipped
         if (!token) {
             console.log('Missing Turnstile token, redirecting to intermediate page.');
