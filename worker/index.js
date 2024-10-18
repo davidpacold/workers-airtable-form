@@ -19,7 +19,7 @@ const createAirtableRecord = async body => {
 };
 
 // Main handler function for form submission
-const submitHandler = async (request, turnstileStatus = 'failed') => {
+ const submitHandler = async (request, turnstileStatus = 'failed') => {
     if (request.method !== "POST") {
         console.log('Method not allowed:', request.method);
         return new Response("Method Not Allowed", {
@@ -163,7 +163,6 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
             'Access-Control-Allow-Headers': 'Content-Type'
         }
     });
-};
 
 // Function to handle submission from the intermediate page
 const handleIntermediateSubmission = async (request) => {
