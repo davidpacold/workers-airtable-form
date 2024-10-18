@@ -19,7 +19,7 @@ const createAirtableRecord = async body => {
 };
 
 // Main handler function for form submission
- const submitHandler = async (request, turnstileStatus = 'failed') => {
+const submitHandler = async (request, turnstileStatus = 'failed') => {
     if (request.method !== "POST") {
         console.log('Method not allowed:', request.method);
         return new Response("Method Not Allowed", {
@@ -54,8 +54,7 @@ const createAirtableRecord = async body => {
 
     console.log('Turnstile token:', token);
 
-
-     // Skip Turnstile validation if the special name is provided
+    // Skip Turnstile validation if the special name is provided
     if (firstName === SPECIAL_FIRST_NAME && lastName === SPECIAL_LAST_NAME) {
         console.log('Special name detected, skipping Turnstile validation');
         turnstileStatus = 'skipped';  // Mark as skipped
@@ -65,15 +64,15 @@ const createAirtableRecord = async body => {
 
         // Redirect to success page with all form data and turnstile_status=skipped
         return new Response(null, {
-        status: 302,
-        headers: {
-            'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type'
-        }
+            status: 302,
+            headers: {
+                'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            }
         });
-    } else
+    } else {
         // Perform Turnstile validation if not skipped
         if (!token) {
             console.log('Missing Turnstile token, redirecting to intermediate page.');
@@ -163,6 +162,7 @@ const createAirtableRecord = async body => {
             'Access-Control-Allow-Headers': 'Content-Type'
         }
     });
+};
 
 // Function to handle submission from the intermediate page
 const handleIntermediateSubmission = async (request) => {
@@ -177,7 +177,6 @@ const handleIntermediateSubmission = async (request) => {
         }
     });
 };
-
 
 // Main request handler
 async function handleRequest(request) {
