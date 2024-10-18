@@ -53,38 +53,35 @@ const submitHandler = async request => {
 
     console.log('Turnstile token:', token);
 
-    let turnstileStatus = 'failed'; // Default to 'failed'
-    
     // Skip Turnstile validation if the special name is provided
     if (firstName === SPECIAL_FIRST_NAME && lastName === SPECIAL_LAST_NAME) {
         console.log('Special name detected, skipping Turnstile validation');
-        turnstileStatus = 'skipped';  // Mark as skipped
     } else {
         // Turnstile validation is required for non-special names
         if (!token) {
             console.log('Missing Turnstile token');
-        } else {
-            const SECRET_KEY = `${TURNSTILE_SECRET}`;
-            const ip = request.headers.get('CF-Connecting-IP');
+            return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
+        }
 
-            let formData = new FormData();
-            formData.append('secret', SECRET_KEY);
-            formData.append('response', token);
-            formData.append('remoteip', ip);
+        const SECRET_KEY = `${TURNSTILE_SECRET}`;
+        const ip = request.headers.get('CF-Connecting-IP');
 
-            const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-                body: formData,
-                method: 'POST'
-            });
+        let formData = new FormData();
+        formData.append('secret', SECRET_KEY);
+        formData.append('response', token);
+        formData.append('remoteip', ip);
 
-            const outcome = await result.json();
-            console.log('Turnstile validation result:', outcome);
+        const result = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            body: formData,
+            method: 'POST'
+        });
 
-            if (outcome.success) {
-                turnstileStatus = 'passed';  // Mark as passed if successful
-            } else {
-                console.log('Turnstile validation failed, but allowing submission.');
-            }
+        const outcome = await result.json();
+        console.log('Turnstile validation result:', outcome);
+
+        if (!outcome.success) {
+            console.log('Turnstile validation failed');
+            return Response.redirect(`https://form123.davidpacold.app/failure.html?${params.toString()}`, 302);
         }
     }
 
@@ -99,8 +96,7 @@ const submitHandler = async request => {
         fields: {
             "First Name": first_name,
             "Last Name": last_name,
-            "Message": message,
-            "Turnstile Status": turnstileStatus  // Add Turnstile status to Airtable
+            "Message": message
         }
     };
 
