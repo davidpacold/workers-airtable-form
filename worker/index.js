@@ -119,6 +119,9 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
         }
     }
 
+    // Add turnstile_status to the URL parameters for success
+    params.append('turnstile_status', turnstileStatus);
+
     // Proceed with Airtable record creation
     const {
         first_name,
@@ -153,6 +156,7 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
 
     console.log('Airtable record created successfully');
 
+    // Redirect to success page with all form data and turnstile_status=passed/skipped
     return new Response(null, {
         status: 302,
         headers: {
