@@ -152,8 +152,18 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
 
 // Function to handle submission from the intermediate page
 const handleIntermediateSubmission = async (request) => {
-    return submitHandler(request, 'failed');
+    const response = await submitHandler(request, 'failed'); // Submit with 'failed' Turnstile status
+    return new Response(null, {
+        status: 302,
+        headers: {
+            'Location': `https://form123.davidpacold.app/completion.html`,
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type'
+        }
+    });
 };
+
 
 // Main request handler
 async function handleRequest(request) {
