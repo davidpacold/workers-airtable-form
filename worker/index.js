@@ -81,10 +81,20 @@ const submitHandler = async request => {
             console.log('Turnstile validation result:', outcome);
 
             if (outcome.success) {
-                turnstileStatus = 'passed';  // Mark as passed if successful
+                turnstileStatus = 'passed';
             } else {
-                console.log('Turnstile validation failed, but allowing submission.');
+                console.log('Turnstile validation failed, redirecting to intermediate page.');
+                return new Response(null, {
+                    status: 302,
+                    headers: {
+                        'Location': `https://form123.davidpacold.app/intermediate.html?${params.toString()}&turnstile_status=failed`,
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type'
+                    }
+                });
             }
+            
         }
     }
 
@@ -150,6 +160,13 @@ async function handleRequest(request) {
     if (url.pathname === "/submit") {
         return submitHandler(request);
     }
+
+    if (url.pathname === "/submitAnyway") {
+        // Proceed with submission as usual, marking the Turnstile status as 'failed'
+        const turnstileStatus = 'failed';
+        return submitFormWithStatus(request, turnstileStatus);
+    }
+    
 
     console.log('Path not found:', url.pathname);
     return new Response('Not Found', {

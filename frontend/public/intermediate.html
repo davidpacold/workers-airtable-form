@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turnstile Issue</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    h1 {
+      color: #4CAF50;
+    }
+    p {
+      font-size: 18px;
+    }
+    #formData {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      padding: 5px 0;
+    }
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      color: #fff;
+      background-color: #4CAF50;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+    a:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Issue with Turnstile Check</h1>
+  <p>Your form has not been submitted yet due to an issue with the Turnstile check.</p>
+  <p>If you'd like to submit the form anyway, please click "Submit Anyway" below.</p>
+  <div id="formData"></div>
+  <button id="submitAnyway">Submit Anyway</button>
+  <a href="https://form123.davidpacold.app">Go back to the form</a>
+
+  <script>
+    function getQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      const entries = params.entries();
+      let result = {};
+      for (const [key, value] of entries) {
+        result[key] = value;
+      }
+      return result;
+    }
+
+    function displayFormData() {
+      const formDataDiv = document.getElementById('formData');
+      const formData = getQueryParams();
+      let html = '<h2>Form Data</h2><ul>';
+      for (const [key, value] of Object.entries(formData)) {
+        html += `<li><strong>${key}</strong>: ${value}</li>`;
+      }
+      html += '</ul>';
+      formDataDiv.innerHTML = html;
+    }
+
+    // Redirect to submit the form anyway
+    document.getElementById('submitAnyway').addEventListener('click', function() {
+      const params = window.location.search;
+      window.location.href = `https://workers-airtable-form.davidpacold-app.workers.dev/submitAnyway${params}`;
+    });
+
+    window.onload = displayFormData;
+  </script>
+</body>
+</html>
