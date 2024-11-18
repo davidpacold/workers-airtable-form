@@ -2,23 +2,31 @@ addEventListener('fetch', event => {
     event.respondWith(handleRequest(event.request));
 });
 
-const createAirtableRecord = async body => {
-    console.log('Creating Airtable record with body:', body);
-    const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE_NAME)}`, {
-        method: 'POST',
-        body: JSON.stringify(body),
-        headers: {
-            Authorization: `Bearer ${AIRTABLE_API_KEY}`,
-            'Content-Type': 'application/json'
-        }
-    });
+const createAirtableRecord = async (body) => {
+    console.log('Creating Airtable record with body:', JSON.stringify(body));
+    try {
+        const response = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE_NAME)}`, {
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
 
-    const result = await response.json();
-    console.log('Airtable Response:', result);
-    return result;
+        const result = await response.json();
+        console.log('Airtable Response:', JSON.stringify(result));
+
+        if (!response.ok) {
+            console.error('Airtable API request failed with status:', response.status, 'and message:', result.error);
+        }
+        return result;
+    } catch (error) {
+        console.error('Error creating Airtable record:', error);
+        return { error: 'Airtable request failed' };
+    }
 };
 
-// Main handler function for form submission
 const submitHandler = async (request, turnstileStatus = 'failed') => {
     if (request.method !== "POST") {
         console.log('Method not allowed:', request.method);
@@ -36,33 +44,25 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
     const body = await request.formData();
     console.log('Form data received:', Array.from(body.entries()));
 
-    // Initialize URLSearchParams for form values
     const params = new URLSearchParams();
     body.forEach((value, key) => {
-        if (key !== 'cf-turnstile-response') {  // Do not append Turnstile response to params
+        if (key !== 'cf-turnstile-response') {
             params.append(key, value);
         }
     });
 
-    // Special name check
     const SPECIAL_FIRST_NAME = "Ellen";
     const SPECIAL_LAST_NAME = "Ripley";
-
     const firstName = body.get('first_name');
     const lastName = body.get('last_name');
-    const token = body.get('cf-turnstile-response'); // This will be null/empty if skipped
-
+    const token = body.get('cf-turnstile-response');
     console.log('Turnstile token:', token);
 
-    // Skip Turnstile validation if the special name is provided
     if (firstName === SPECIAL_FIRST_NAME && lastName === SPECIAL_LAST_NAME) {
         console.log('Special name detected, skipping Turnstile validation');
-        turnstileStatus = 'skipped';  // Mark as skipped
-
-        // Ensure the turnstile_status is added to the URL parameters
+        turnstileStatus = 'skipped';
         params.append('turnstile_status', 'skipped');
 
-        // Redirect to success page with all form data and turnstile_status=skipped
         return new Response(null, {
             status: 302,
             headers: {
@@ -73,7 +73,6 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
             }
         });
     } else {
-        // Perform Turnstile validation if not skipped
         if (!token) {
             console.log('Missing Turnstile token, redirecting to intermediate page.');
             return new Response(null, {
@@ -104,7 +103,7 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
         console.log('Turnstile validation result:', outcome);
 
         if (outcome.success) {
-            turnstileStatus = 'passed';  // Mark as passed if successful
+            turnstileStatus = 'passed';
         } else {
             console.log('Turnstile validation failed, redirecting to intermediate page.');
             return new Response(null, {
@@ -119,10 +118,8 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
         }
     }
 
-    // Add turnstile_status to the URL parameters for success
     params.append('turnstile_status', turnstileStatus);
 
-    // Proceed with Airtable record creation
     const {
         first_name,
         last_name,
@@ -134,7 +131,7 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
             "First Name": first_name,
             "Last Name": last_name,
             "Message": message,
-            "Turnstile Status": turnstileStatus  // Add Turnstile status to Airtable
+            "Turnstile Status": turnstileStatus
         }
     };
 
@@ -156,7 +153,6 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
 
     console.log('Airtable record created successfully');
 
-    // Redirect to success page with all form data and turnstile_status=passed/skipped
     return new Response(null, {
         status: 302,
         headers: {
@@ -168,30 +164,14 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
     });
 };
 
-// Function to handle submission from the intermediate page
 const handleIntermediateSubmission = async (request) => {
-    // Directly use submitHandler with turnstileStatus set to 'failed'
+    console.log('Handling submission for /submitAnyway with failed Turnstile status');
     return await submitHandler(request, 'failed');
 };
 
-// // Function to handle submission from the intermediate page
-// const handleIntermediateSubmission = async (request) => {
-//     const response = await submitHandler(request, 'failed'); // Submit with 'failed' Turnstile status
-//     return new Response(null, {
-//         status: 302,
-//         headers: {
-//             'Location': `https://form123.davidpacold.app/completion.html`,
-//             'Access-Control-Allow-Origin': '*',
-//             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-//             'Access-Control-Allow-Headers': 'Content-Type'
-//         }
-//     });
-// };
-
-// Main request handler
 async function handleRequest(request) {
     const url = new URL(request.url);
-    console.log('Handling request for URL:', url);
+    console.log('Handling request for URL:', url.pathname);
 
     if (url.pathname === "/submit") {
         return submitHandler(request);
