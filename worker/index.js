@@ -27,7 +27,7 @@ const createAirtableRecord = async (body) => {
     }
 };
 
-const submitHandler = async (request, turnstileStatus = 'failed') => {
+const submitHandler = async (request, turnstileStatus = 'failed', forceSubmit = false) => {
     if (request.method !== "POST") {
         console.log('Method not allowed:', request.method);
         return new Response("Method Not Allowed", {
@@ -85,8 +85,25 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
         }
     }
 
+    // Redirect to intermediate page on failed Turnstile unless forced to submit
+    if (turnstileStatus === 'failed' && !forceSubmit) {
+        console.log('Redirecting to intermediate page due to failed Turnstile');
+        params.append('turnstile_status', 'failed');
+        return new Response(null, {
+            status: 302,
+            headers: {
+                'Location': `https://form123.davidpacold.app/intermediate.html?${params.toString()}`,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type'
+            }
+        });
+    }
+
+    // Add turnstile_status to the URL parameters
     params.append('turnstile_status', turnstileStatus);
 
+    // Only proceed with Airtable record creation if the Turnstile was passed, skipped, or forceSubmit is true
     const {
         first_name,
         last_name,
@@ -120,15 +137,11 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
 
     console.log('Airtable record created successfully');
 
-    // Redirect to success or intermediate page based on Turnstile status
-    const redirectUrl = turnstileStatus === 'failed'
-        ? `https://form123.davidpacold.app/intermediate.html?${params.toString()}`
-        : `https://form123.davidpacold.app/success.html?${params.toString()}`;
-
+    // Redirect to success page
     return new Response(null, {
         status: 302,
         headers: {
-            'Location': redirectUrl,
+            'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type'
@@ -137,8 +150,8 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
 };
 
 const handleIntermediateSubmission = async (request) => {
-    console.log('Handling submission for /submitAnyway with failed Turnstile status');
-    return await submitHandler(request, 'failed');
+    console.log('Handling submission for /submitAnyway with forced Airtable write');
+    return await submitHandler(request, 'failed', true); // Force submit to Airtable
 };
 
 async function handleRequest(request) {
