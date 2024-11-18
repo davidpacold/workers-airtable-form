@@ -61,31 +61,7 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
     if (firstName === SPECIAL_FIRST_NAME && lastName === SPECIAL_LAST_NAME) {
         console.log('Special name detected, skipping Turnstile validation');
         turnstileStatus = 'skipped';
-        params.append('turnstile_status', 'skipped');
-
-        return new Response(null, {
-            status: 302,
-            headers: {
-                'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
-            }
-        });
-    } else {
-        if (!token) {
-            console.log('Missing Turnstile token, redirecting to intermediate page.');
-            return new Response(null, {
-                status: 302,
-                headers: {
-                    'Location': `https://form123.davidpacold.app/intermediate.html?${params.toString()}&turnstile_status=failed`,
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                    'Access-Control-Allow-Headers': 'Content-Type'
-                }
-            });
-        }
-
+    } else if (token) {
         const SECRET_KEY = `${TURNSTILE_SECRET}`;
         const ip = request.headers.get('CF-Connecting-IP');
 
@@ -105,16 +81,7 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
         if (outcome.success) {
             turnstileStatus = 'passed';
         } else {
-            console.log('Turnstile validation failed, redirecting to intermediate page.');
-            return new Response(null, {
-                status: 302,
-                headers: {
-                    'Location': `https://form123.davidpacold.app/intermediate.html?${params.toString()}&turnstile_status=failed`,
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                    'Access-Control-Allow-Headers': 'Content-Type'
-                }
-            });
+            console.log('Turnstile validation failed');
         }
     }
 
@@ -153,10 +120,15 @@ const submitHandler = async (request, turnstileStatus = 'failed') => {
 
     console.log('Airtable record created successfully');
 
+    // Redirect to success or intermediate page based on Turnstile status
+    const redirectUrl = turnstileStatus === 'failed'
+        ? `https://form123.davidpacold.app/intermediate.html?${params.toString()}`
+        : `https://form123.davidpacold.app/success.html?${params.toString()}`;
+
     return new Response(null, {
         status: 302,
         headers: {
-            'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
+            'Location': redirectUrl,
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type'
