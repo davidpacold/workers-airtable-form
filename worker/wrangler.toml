@@ -4,7 +4,7 @@ type = "javascript"
 compatibility_date = "2024-11-18"
 
 # Wrangler configuration (wrangler v3.79.0^)
-account_id = "20f3fe27a320b70fbb90d90ce5965695"
+account_id = "9d715619ef11de2d82a7ecb776aca71f"
 workers_dev = true
 
 [observability.logs]

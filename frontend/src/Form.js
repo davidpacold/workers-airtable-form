@@ -43,7 +43,7 @@ const Form = () => {
       const turnstileDiv = document.createElement('div');
       turnstileDiv.id = 'turnstile-widget';
       turnstileDiv.className = 'cf-turnstile';
-      turnstileDiv.setAttribute('data-sitekey', '0x4AAAAAAAA3bX86SlzobPLJ');
+      turnstileDiv.setAttribute('data-sitekey', '0x4AAAAAAA1f_KjwtjmI4jSB');
       turnstileDiv.setAttribute('data-callback', 'handleTurnstile');
       turnstileDiv.setAttribute('data-error-callback', 'handleTurnstileError');
       turnstileDiv.setAttribute('data-retry', 'never');
