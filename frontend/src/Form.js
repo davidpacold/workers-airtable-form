@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const SERVERLESS_FN_URL = "https://workers-airtable-form.davidpacold-app.workers.dev/submit";
+const SERVERLESS_FN_URL = "https://workers-airtable-form.david-pacold.workers.dev/submit";
 const SPECIAL_FIRST_NAME = "Ellen";
 const SPECIAL_LAST_NAME = "Ripley";
 
