@@ -92,7 +92,7 @@ const submitHandler = async (request, turnstileStatus = 'failed', forceSubmit = 
         return new Response(null, {
             status: 302,
             headers: {
-                'Location': `https://form123.davidpacold.app/intermediate.html?${params.toString()}`,
+                'Location': `https://form.davidpacold.app/intermediate.html?${params.toString()}`,
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type'
@@ -141,7 +141,7 @@ const submitHandler = async (request, turnstileStatus = 'failed', forceSubmit = 
     return new Response(null, {
         status: 302,
         headers: {
-            'Location': `https://form123.davidpacold.app/success.html?${params.toString()}`,
+            'Location': `https://form.davidpacold.app/success.html?${params.toString()}`,
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type'
