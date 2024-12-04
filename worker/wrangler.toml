@@ -13,5 +13,5 @@ enabled = true
 [vars]
 AIRTABLE_BASE_ID = "appKWFjei6fzcRFFH"
 AIRTABLE_TABLE_NAME = "Cloudflare Form"
-FORM_URL = "https://form123.davidpacold.app"
-SUBMIT_URL = "https://form123.davidpacold.app/success.html"
+FORM_URL = "https://form.davidpacold.app"
+SUBMIT_URL = "https://form.davidpacold.app/success.html"
