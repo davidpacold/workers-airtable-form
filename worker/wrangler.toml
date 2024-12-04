@@ -1,5 +1,5 @@
 name = "workers-airtable-form"
-entry-point = "index.js"
+main = "index.js"
 type = "javascript"
 compatibility_date = "2024-11-18"
 
